@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package ratings;
+
+option go_package = "proto/gen";
+
+import "google/protobuf/timestamp.proto";
+
+service Service {
+  rpc GetAggregatedScores(AggregatedScoresRequest) returns (AggregatedScoresResponse);
+}
+
+message AggregatedScoresRequest {
+  google.protobuf.Timestamp start_date = 1;
+  google.protobuf.Timestamp end_date   = 2;
+}
+
+message AggregatedScoresResponse {
+  Rating rating         = 1;
+  repeated Score scores = 2;
+}
+
+message Rating {
+  int32 category_id = 1;
+  string category   = 2;
+  int32 count       = 3;
+}
+
+message Score {
+  ScoreEnum type  = 1; 
+  string value    = 2;
+  string category = 3;
+  int32 score     = 4;
+}
+
+enum ScoreEnum {
+  EMPTY  = 0;
+  DAILY  = 1;
+  WEEKLY = 2;
+}
