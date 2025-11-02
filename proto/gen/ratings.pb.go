@@ -25,9 +25,10 @@ const (
 type ScoreEnum int32
 
 const (
-	ScoreEnum_EMPTY  ScoreEnum = 0
-	ScoreEnum_DAILY  ScoreEnum = 1
-	ScoreEnum_WEEKLY ScoreEnum = 2
+	ScoreEnum_EMPTY   ScoreEnum = 0
+	ScoreEnum_DAILY   ScoreEnum = 1
+	ScoreEnum_WEEKLY  ScoreEnum = 2
+	ScoreEnum_RATINGS ScoreEnum = 3
 )
 
 // Enum value maps for ScoreEnum.
@@ -36,11 +37,13 @@ var (
 		0: "EMPTY",
 		1: "DAILY",
 		2: "WEEKLY",
+		3: "RATINGS",
 	}
 	ScoreEnum_value = map[string]int32{
-		"EMPTY":  0,
-		"DAILY":  1,
-		"WEEKLY": 2,
+		"EMPTY":   0,
+		"DAILY":   1,
+		"WEEKLY":  2,
+		"RATINGS": 3,
 	}
 )
 
@@ -125,8 +128,7 @@ func (x *AggregatedScoresRequest) GetEndDate() *timestamppb.Timestamp {
 
 type AggregatedScoresResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rating        *Rating                `protobuf:"bytes,1,opt,name=rating,proto3" json:"rating,omitempty"`
-	Scores        []*Score               `protobuf:"bytes,2,rep,name=scores,proto3" json:"scores,omitempty"`
+	Scores        []*Score               `protobuf:"bytes,1,rep,name=scores,proto3" json:"scores,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -161,13 +163,6 @@ func (*AggregatedScoresResponse) Descriptor() ([]byte, []int) {
 	return file_proto_ratings_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *AggregatedScoresResponse) GetRating() *Rating {
-	if x != nil {
-		return x.Rating
-	}
-	return nil
-}
-
 func (x *AggregatedScoresResponse) GetScores() []*Score {
 	if x != nil {
 		return x.Scores
@@ -175,79 +170,21 @@ func (x *AggregatedScoresResponse) GetScores() []*Score {
 	return nil
 }
 
-type Rating struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CategoryId    int32                  `protobuf:"varint,1,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
-	Category      string                 `protobuf:"bytes,2,opt,name=category,proto3" json:"category,omitempty"`
-	Count         int32                  `protobuf:"varint,3,opt,name=count,proto3" json:"count,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Rating) Reset() {
-	*x = Rating{}
-	mi := &file_proto_ratings_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Rating) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Rating) ProtoMessage() {}
-
-func (x *Rating) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_ratings_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Rating.ProtoReflect.Descriptor instead.
-func (*Rating) Descriptor() ([]byte, []int) {
-	return file_proto_ratings_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *Rating) GetCategoryId() int32 {
-	if x != nil {
-		return x.CategoryId
-	}
-	return 0
-}
-
-func (x *Rating) GetCategory() string {
-	if x != nil {
-		return x.Category
-	}
-	return ""
-}
-
-func (x *Rating) GetCount() int32 {
-	if x != nil {
-		return x.Count
-	}
-	return 0
-}
-
 type Score struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          ScoreEnum              `protobuf:"varint,1,opt,name=type,proto3,enum=ratings.ScoreEnum" json:"type,omitempty"`
 	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
-	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`
-	Score         int32                  `protobuf:"varint,4,opt,name=score,proto3" json:"score,omitempty"`
+	Spelling      int32                  `protobuf:"varint,3,opt,name=spelling,proto3" json:"spelling,omitempty"`
+	Grammar       int32                  `protobuf:"varint,4,opt,name=grammar,proto3" json:"grammar,omitempty"`
+	Gdpr          int32                  `protobuf:"varint,5,opt,name=gdpr,proto3" json:"gdpr,omitempty"`
+	Randomness    int32                  `protobuf:"varint,6,opt,name=randomness,proto3" json:"randomness,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Score) Reset() {
 	*x = Score{}
-	mi := &file_proto_ratings_proto_msgTypes[3]
+	mi := &file_proto_ratings_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -259,7 +196,7 @@ func (x *Score) String() string {
 func (*Score) ProtoMessage() {}
 
 func (x *Score) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_ratings_proto_msgTypes[3]
+	mi := &file_proto_ratings_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -272,7 +209,7 @@ func (x *Score) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Score.ProtoReflect.Descriptor instead.
 func (*Score) Descriptor() ([]byte, []int) {
-	return file_proto_ratings_proto_rawDescGZIP(), []int{3}
+	return file_proto_ratings_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Score) GetType() ScoreEnum {
@@ -289,16 +226,30 @@ func (x *Score) GetValue() string {
 	return ""
 }
 
-func (x *Score) GetCategory() string {
+func (x *Score) GetSpelling() int32 {
 	if x != nil {
-		return x.Category
+		return x.Spelling
 	}
-	return ""
+	return 0
 }
 
-func (x *Score) GetScore() int32 {
+func (x *Score) GetGrammar() int32 {
 	if x != nil {
-		return x.Score
+		return x.Grammar
+	}
+	return 0
+}
+
+func (x *Score) GetGdpr() int32 {
+	if x != nil {
+		return x.Gdpr
+	}
+	return 0
+}
+
+func (x *Score) GetRandomness() int32 {
+	if x != nil {
+		return x.Randomness
 	}
 	return 0
 }
@@ -311,25 +262,24 @@ const file_proto_ratings_proto_rawDesc = "" +
 	"\x17AggregatedScoresRequest\x129\n" +
 	"\n" +
 	"start_date\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tstartDate\x125\n" +
-	"\bend_date\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\aendDate\"k\n" +
-	"\x18AggregatedScoresResponse\x12'\n" +
-	"\x06rating\x18\x01 \x01(\v2\x0f.ratings.RatingR\x06rating\x12&\n" +
-	"\x06scores\x18\x02 \x03(\v2\x0e.ratings.ScoreR\x06scores\"[\n" +
-	"\x06Rating\x12\x1f\n" +
-	"\vcategory_id\x18\x01 \x01(\x05R\n" +
-	"categoryId\x12\x1a\n" +
-	"\bcategory\x18\x02 \x01(\tR\bcategory\x12\x14\n" +
-	"\x05count\x18\x03 \x01(\x05R\x05count\"w\n" +
+	"\bend_date\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\aendDate\"B\n" +
+	"\x18AggregatedScoresResponse\x12&\n" +
+	"\x06scores\x18\x01 \x03(\v2\x0e.ratings.ScoreR\x06scores\"\xaf\x01\n" +
 	"\x05Score\x12&\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x12.ratings.ScoreEnumR\x04type\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\x12\x1a\n" +
-	"\bcategory\x18\x03 \x01(\tR\bcategory\x12\x14\n" +
-	"\x05score\x18\x04 \x01(\x05R\x05score*-\n" +
+	"\bspelling\x18\x03 \x01(\x05R\bspelling\x12\x18\n" +
+	"\agrammar\x18\x04 \x01(\x05R\agrammar\x12\x12\n" +
+	"\x04gdpr\x18\x05 \x01(\x05R\x04gdpr\x12\x1e\n" +
+	"\n" +
+	"randomness\x18\x06 \x01(\x05R\n" +
+	"randomness*:\n" +
 	"\tScoreEnum\x12\t\n" +
 	"\x05EMPTY\x10\x00\x12\t\n" +
 	"\x05DAILY\x10\x01\x12\n" +
 	"\n" +
-	"\x06WEEKLY\x10\x022e\n" +
+	"\x06WEEKLY\x10\x02\x12\v\n" +
+	"\aRATINGS\x10\x032e\n" +
 	"\aService\x12Z\n" +
 	"\x13GetAggregatedScores\x12 .ratings.AggregatedScoresRequest\x1a!.ratings.AggregatedScoresResponseB\vZ\tproto/genb\x06proto3"
 
@@ -346,28 +296,26 @@ func file_proto_ratings_proto_rawDescGZIP() []byte {
 }
 
 var file_proto_ratings_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_ratings_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_proto_ratings_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_proto_ratings_proto_goTypes = []any{
 	(ScoreEnum)(0),                   // 0: ratings.ScoreEnum
 	(*AggregatedScoresRequest)(nil),  // 1: ratings.AggregatedScoresRequest
 	(*AggregatedScoresResponse)(nil), // 2: ratings.AggregatedScoresResponse
-	(*Rating)(nil),                   // 3: ratings.Rating
-	(*Score)(nil),                    // 4: ratings.Score
-	(*timestamppb.Timestamp)(nil),    // 5: google.protobuf.Timestamp
+	(*Score)(nil),                    // 3: ratings.Score
+	(*timestamppb.Timestamp)(nil),    // 4: google.protobuf.Timestamp
 }
 var file_proto_ratings_proto_depIdxs = []int32{
-	5, // 0: ratings.AggregatedScoresRequest.start_date:type_name -> google.protobuf.Timestamp
-	5, // 1: ratings.AggregatedScoresRequest.end_date:type_name -> google.protobuf.Timestamp
-	3, // 2: ratings.AggregatedScoresResponse.rating:type_name -> ratings.Rating
-	4, // 3: ratings.AggregatedScoresResponse.scores:type_name -> ratings.Score
-	0, // 4: ratings.Score.type:type_name -> ratings.ScoreEnum
-	1, // 5: ratings.Service.GetAggregatedScores:input_type -> ratings.AggregatedScoresRequest
-	2, // 6: ratings.Service.GetAggregatedScores:output_type -> ratings.AggregatedScoresResponse
-	6, // [6:7] is the sub-list for method output_type
-	5, // [5:6] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	4, // 0: ratings.AggregatedScoresRequest.start_date:type_name -> google.protobuf.Timestamp
+	4, // 1: ratings.AggregatedScoresRequest.end_date:type_name -> google.protobuf.Timestamp
+	3, // 2: ratings.AggregatedScoresResponse.scores:type_name -> ratings.Score
+	0, // 3: ratings.Score.type:type_name -> ratings.ScoreEnum
+	1, // 4: ratings.Service.GetAggregatedScores:input_type -> ratings.AggregatedScoresRequest
+	2, // 5: ratings.Service.GetAggregatedScores:output_type -> ratings.AggregatedScoresResponse
+	5, // [5:6] is the sub-list for method output_type
+	4, // [4:5] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_proto_ratings_proto_init() }
@@ -381,7 +329,7 @@ func file_proto_ratings_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_ratings_proto_rawDesc), len(file_proto_ratings_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   4,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -16,25 +16,21 @@ message AggregatedScoresRequest {
 }
 
 message AggregatedScoresResponse {
-  Rating rating         = 1;
-  repeated Score scores = 2;
-}
-
-message Rating {
-  int32 category_id = 1;
-  string category   = 2;
-  int32 count       = 3;
+  repeated Score scores = 1;
 }
 
 message Score {
-  ScoreEnum type  = 1; 
-  string value    = 2;
-  string category = 3;
-  int32 score     = 4;
+  ScoreEnum type   = 1; 
+  string value     = 2;
+  int32 spelling   = 3;
+  int32 grammar    = 4;
+  int32 gdpr       = 5;
+  int32 randomness = 6;
 }
 
 enum ScoreEnum {
-  EMPTY  = 0;
-  DAILY  = 1;
-  WEEKLY = 2;
+  EMPTY   = 0;
+  DAILY   = 1;
+  WEEKLY  = 2;
+  RATINGS = 3;
 }
