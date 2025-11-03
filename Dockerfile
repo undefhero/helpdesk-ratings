@@ -21,8 +21,6 @@ WORKDIR /root/
 
 COPY --from=builder /app/main .
 
-COPY database.db ./database.db
-
 VOLUME ["/root/data"]
 
 EXPOSE 50051
