@@ -17,6 +17,18 @@ services:
     networks:
       - helpdesk-network
 
+  grpcui:
+    image: wongnai/grpcui
+    ports:
+      - "8080:8080"
+    environment:
+      - GRPCUI_SERVER=helpdesk-ratings:50051
+    command: ["grpcui", "-bind", "0.0.0.0", "-port", "8080", "-plaintext", "helpdesk-ratings:50051"]
+    depends_on:
+      - helpdesk-ratings
+    networks:
+      - helpdesk-network
+
 networks:
   helpdesk-network:
     driver: bridge

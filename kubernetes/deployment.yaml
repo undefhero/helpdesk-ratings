@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helpdesk-ratings
+  namespace: helpdesk
+spec:
+  selector:
+    matchLabels:
+      app: helpdesk-ratings
+  template:
+    metadata:
+      labels:
+        app: helpdesk-ratings
+    spec:
+      containers:
+      - name: helpdesk-ratings
+        image: aiprospace/helpdesk-ratings:v0.2.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 50051
+        env:
+          - name: SERVER_HOST
+            value: "0.0.0.0"
+          - name: SERVER_PORT
+            value: "50051"
+          - name: DB_FILE_PATH
+            value: "/app/database.db"
+        volumeMounts:
+          - name: db-volume
+            mountPath: /app/database.db
+            readOnly: true
+      volumes:
+        - name: db-volume
+          hostPath:
+            path: /mnt/data/database.db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: helpdesk-ratings
+  namespace: helpdesk
+spec:
+  selector:
+    app: helpdesk-ratings
+  ports:
+    - protocol: TCP
+      port: 50051
+      targetPort: 50051
+  type: ClusterIP
