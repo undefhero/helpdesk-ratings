@@ -9,6 +9,13 @@ type Repository struct {
 	db *sql.DB
 }
 
+type Rating struct {
+    Day        string  `json:"day"`
+    Category   string  `json:"category"`
+    Score      int32   `json:"daily_score"`
+    Total      int32   `json:"total"`
+}
+
 func NewRepository(dataSourceName string) (*Repository, error) {
 	db, err := sql.Open("sqlite3", dataSourceName)
 	if err != nil {
