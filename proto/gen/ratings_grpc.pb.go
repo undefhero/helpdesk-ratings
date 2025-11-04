@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Service_GetAggregatedScores_FullMethodName = "/ratings.Service/GetAggregatedScores"
+	Service_GetOverallScore_FullMethodName     = "/ratings.Service/GetOverallScore"
 )
 
 // ServiceClient is the client API for Service service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
 	GetAggregatedScores(ctx context.Context, in *AggregatedScoresRequest, opts ...grpc.CallOption) (*AggregatedScoresResponse, error)
+	GetOverallScore(ctx context.Context, in *OverallScoreRequest, opts ...grpc.CallOption) (*OverallScoreResponse, error)
 }
 
 type serviceClient struct {
@@ -47,11 +49,22 @@ func (c *serviceClient) GetAggregatedScores(ctx context.Context, in *AggregatedS
 	return out, nil
 }
 
+func (c *serviceClient) GetOverallScore(ctx context.Context, in *OverallScoreRequest, opts ...grpc.CallOption) (*OverallScoreResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OverallScoreResponse)
+	err := c.cc.Invoke(ctx, Service_GetOverallScore_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceServer is the server API for Service service.
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility.
 type ServiceServer interface {
 	GetAggregatedScores(context.Context, *AggregatedScoresRequest) (*AggregatedScoresResponse, error)
+	GetOverallScore(context.Context, *OverallScoreRequest) (*OverallScoreResponse, error)
 	mustEmbedUnimplementedServiceServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedServiceServer struct{}
 
 func (UnimplementedServiceServer) GetAggregatedScores(context.Context, *AggregatedScoresRequest) (*AggregatedScoresResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAggregatedScores not implemented")
+}
+func (UnimplementedServiceServer) GetOverallScore(context.Context, *OverallScoreRequest) (*OverallScoreResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOverallScore not implemented")
 }
 func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}
 func (UnimplementedServiceServer) testEmbeddedByValue()                 {}
@@ -104,6 +120,24 @@ func _Service_GetAggregatedScores_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Service_GetOverallScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OverallScoreRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).GetOverallScore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_GetOverallScore_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).GetOverallScore(ctx, req.(*OverallScoreRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Service_ServiceDesc is the grpc.ServiceDesc for Service service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAggregatedScores",
 			Handler:    _Service_GetAggregatedScores_Handler,
+		},
+		{
+			MethodName: "GetOverallScore",
+			Handler:    _Service_GetOverallScore_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

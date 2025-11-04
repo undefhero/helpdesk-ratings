@@ -9,6 +9,13 @@ type Repository struct {
 	db *sql.DB
 }
 
+type Rating struct {
+    Day        string  `json:"day"`
+    Category   string  `json:"category"`
+    Score      int32   `json:"daily_score"`
+    Total      int32   `json:"total"`
+}
+
 func NewRepository(dataSourceName string) (*Repository, error) {
 	db, err := sql.Open("sqlite3", dataSourceName)
 	if err != nil {
@@ -19,6 +26,20 @@ func NewRepository(dataSourceName string) (*Repository, error) {
 
 func (r *Repository) Close() error {
 	return r.db.Close()
+}
+
+func (r *Repository) GetOverallScore(startDate, endDate string) (float32, error) {
+	query := `
+		SELECT COALESCE(100.0 * SUM((r.rating / 5.0) * rc.weight) / SUM(rc.weight), 0) AS overall_score
+        FROM ratings r
+        JOIN rating_categories rc ON rc.id = r.rating_category_id
+        WHERE r.created_at BETWEEN ? AND ?`
+	var overallScore float32
+	err := r.db.QueryRow(query, startDate, endDate).Scan(&overallScore)
+	if err != nil {
+		return 0, err
+	}
+	return overallScore, nil
 }
 
 func (r *Repository) GetWeightedRatings(startDate, endDate string) ([]Rating, error) {

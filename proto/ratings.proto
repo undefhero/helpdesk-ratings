@@ -8,11 +8,21 @@ import "google/protobuf/timestamp.proto";
 
 service Service {
   rpc GetAggregatedScores(AggregatedScoresRequest) returns (AggregatedScoresResponse);
+  rpc GetOverallScore(OverallScoreRequest) returns (OverallScoreResponse);
 }
 
 message AggregatedScoresRequest {
   google.protobuf.Timestamp start_date = 1;
   google.protobuf.Timestamp end_date   = 2;
+}
+
+message OverallScoreRequest {
+  google.protobuf.Timestamp start_date = 1;
+  google.protobuf.Timestamp end_date   = 2;
+}
+
+message OverallScoreResponse {
+  float overall_score = 1;
 }
 
 message AggregatedScoresResponse {
