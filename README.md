@@ -40,3 +40,107 @@ You need to use the algorithm in both of the endpoints in the second task.
 * How would you build and deploy the solution?
 
     At ZQA we make heavy use of containers and [Kubernetes](https://kubernetes.io).
+
+
+## Solution
+
+### Deployment and launcing
+The [./kubernetes/](./kubernetes/) folder containis an example of how the service could be deployed to Kubernetes. 
+**Important**: The database file is not included into Docker image. The `database.db` file has to be mounted to the container at runtime.
+
+The service accepts environment variables:
+|Variable    |Default Value.  |Description              |
+|------------|----------------|-------------------------|
+|SERVER_HOST |0.0.0.0         |Server address           |
+|SERVER_PORT |"50051"         |gRPC server port         |
+|DB_FILE_PATH|/app/database.db|SQLite database file path|
+
+The repository also includes `docker-compose.yml` for local and remote service running.
+
+It can be locally built and launched:
+```bash
+docker compose --profile local up
+```
+Or with remote image:
+```bash
+docker compose --profile remote up
+```
+The list of available images at DockerHub: [aiprospace/helpdesk-ratings](https://hub.docker.com/r/aiprospace/helpdesk-ratings/tags)
+
+### Implementation
+The main logic and integration tests are on the [internal/service/ratings_service.go](internal/service/ratings_service.go), [internal/database/repository.go](internal/database/repository.go)
+
+I also included test scenarios that I used during development.
+
+## Test Scenarious
+
+#### Base positive:
+* One month January
+```bash
+grpcurl -plaintext -d '{
+  "start_date": "2025-01-01T00:00:00Z",
+  "end_date": "2025-01-31T23:59:59Z"
+}' localhost:50051 ratings.Service/GetAggregatedScores
+```
+
+* One day
+```bash
+grpcurl -plaintext -d '{
+  "start_date": "2025-01-01T00:00:00Z",
+  "end_date": "2025-01-01T23:59:59Z"
+}' localhost:50051 ratings.Service/GetAggregatedScores
+```
+
+* One month and one day
+```bash
+grpcurl -plaintext -d '{
+  "start_date": "2025-01-01T00:00:00Z",
+  "end_date": "2025-02-01T23:59:59Z"
+}' localhost:50051 ratings.Service/GetAggregatedScores
+```
+
+* One year
+```bash
+grpcurl -plaintext -d '{
+  "start_date": "2025-01-01T00:00:00Z",
+  "end_date": "2025-12-31T23:59:59Z"
+}' localhost:50051 ratings.Service/GetAggregatedScores
+```
+
+#### Edge cases
+* 28 days different, months
+```bash
+grpcurl -plaintext -d '{
+  "start_date": "2025-01-06T00:00:00Z",
+  "end_date": "2025-02-02T23:59:59Z"
+}' localhost:50051 ratings.Service/GetAggregatedScores
+```
+
+* 29 days different, months
+```bash
+grpcurl -plaintext -d '{
+  "start_date": "2025-01-06T00:00:00Z",
+  "end_date": "2025-02-02T23:59:59Z"
+}' localhost:50051 ratings.Service/GetAggregatedScores
+```
+
+Negative
+* Start date after End date
+```bash
+grpcurl -plaintext -d '{
+  "start_date": "2025-02-01T00:00:00Z",
+  "end_date": "2025-01-01T23:59:59Z"
+}' localhost:50051 ratings.Service/GetAggregatedScores
+```
+
+* No End date
+```bash
+grpcurl -plaintext -d '{
+  "start_date": "2025-02-01T00:00:00Z"
+}' localhost:50051 ratings.Service/GetAggregatedScores
+```
+
+* Empty
+```bash
+grpcurl -plaintext -d '{}' localhost:50051 ratings.Service/GetAggregatedScores
+```

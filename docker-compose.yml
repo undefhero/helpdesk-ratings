@@ -1,10 +1,12 @@
 version: '3.8'
 
 services:
-  helpdesk-ratings:
+  helpdesk-ratings-dev:
     build:
       context: .
       dockerfile: Dockerfile
+    profiles:
+      - local
     ports:
       - "50051:50051"
     environment:
@@ -17,15 +19,20 @@ services:
     networks:
       - helpdesk-network
 
-  grpcui:
-    image: wongnai/grpcui
+  helpdesk-ratings:
+    image:
+      aiprospace/helpdesk-ratings:v0.2.0
+    profiles:
+      - remote
     ports:
-      - "8080:8080"
+      - "50051:50051"
     environment:
-      - GRPCUI_SERVER=helpdesk-ratings:50051
-    command: ["grpcui", "-bind", "0.0.0.0", "-port", "8080", "-plaintext", "helpdesk-ratings:50051"]
-    depends_on:
-      - helpdesk-ratings
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=50051
+      - DB_FILE_PATH=/app/database.db
+    volumes:
+      - ./database.db:/app/database.db
+    restart: unless-stopped
     networks:
       - helpdesk-network
 
