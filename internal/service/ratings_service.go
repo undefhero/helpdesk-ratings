@@ -95,6 +95,14 @@ func (s *RatingsService) GetAggregatedScores(ctx context.Context, req *pb.Aggreg
 			log.Fatalf("Failed to calculate daily report: %v", err)
 		}
 		report = append(report, dailyReport...)
+	} else {
+		log.Printf("Generating weekly report: %v to %v", startTime, endTime)
+		
+		weeklyReport, err := CalculateWeeklyReport(ratings)
+		if err != nil {
+			log.Fatalf("Failed to calculate weekly report: %v", err)
+		}
+		report = append(report, weeklyReport...)
 	}
 
 	return &pb.AggregatedScoresResponse{
@@ -114,19 +122,52 @@ func CalculateDailyReport(ratings []database.Rating) ([]*pb.Score, error) {
 				Value: rating.Day,
 			}
 
-			container, _ = scoreByCategory(container, rating, func(s int32) int32 { return s })
+			container, _ = scoreByCategory[int32](container, rating, func(v int32, r database.Rating) int32 { return r.Score })
 		} else if score != nil && rating.Day == score.Value {
-			container, _ = scoreByCategory(container, rating, func(s int32) int32 { return s })
+			container, _ = scoreByCategory[int32](container, rating, func(v int32, r database.Rating) int32 { return r.Score })
 		} else if score != nil && rating.Day != score.Value {
-			report = includeRatingReport(report, score, container)
+			report = includeRatingToReport(report, score, container)
 			score.Value = rating.Day
 			container, _ = createEmptyContainer[int32]()
-			container, _ = scoreByCategory(container, rating, func(s int32) int32 { return s })
+			container, _ = scoreByCategory[int32](container, rating, func(v int32, r database.Rating) int32 { return r.Score })
 		}
 	}
 
 	if score != nil {
-		report = includeRatingReport(report, score, container)
+		report = includeRatingToReport(report, score, container)
+	}
+
+	return report, nil
+}
+
+func CalculateWeeklyReport(ratings []database.Rating) ([]*pb.Score, error) {
+	var report []*pb.Score
+	var rating database.Rating
+	var currentDay string = ratings[0].Day
+	var dayCounter, weekNumber int32 = 1, 1
+	var container, _ = createEmptyContainer[[]int32]()
+	
+	for dayCounter <= 7 && len(ratings) > 0 {
+		rating = ratings[0]
+		ratings = ratings[1:]
+		container, _ = scoreByCategory[[]int32](container, rating, func(v []int32, r database.Rating) []int32 { return append(v, r.Score) })
+
+		if rating.Day != currentDay {
+			dayCounter++
+		}
+
+		if dayCounter > 7 {
+			dayCounter = 1
+			weekNumber++
+			report = append(report, aggreagateWeeklyScores(container, weekNumber-1))
+			container, _ = createEmptyContainer[[]int32]()
+		}
+
+		currentDay = rating.Day
+	}
+
+	if dayCounter > 1 {
+		report = append(report, aggreagateWeeklyScores(container, weekNumber))
 	}
 
 	return report, nil
@@ -135,7 +176,7 @@ func CalculateDailyReport(ratings []database.Rating) ([]*pb.Score, error) {
 func CalculateRatingsReport(ratings []database.Rating) (*pb.Score, error) {
 	var container, _ = createEmptyContainer[int32]()
 	for _, rating := range ratings {
-		container, _ = scoreByCategory(container, rating, func(s int32) int32 { return s + rating.Score })
+		container, _ = scoreByCategory[int32](container, rating, func(v int32, r database.Rating) int32 { return v + r.Total })
 	}
 	return &pb.Score{
 		Type:  			pb.ScoreEnum_RATINGS,
@@ -146,21 +187,55 @@ func CalculateRatingsReport(ratings []database.Rating) (*pb.Score, error) {
 	}, nil
 }
 
-func scoreByCategory[T ScoreContainerValue](container ScoreContainer[T], rating database.Rating, updateFunc func(int32) T) (ScoreContainer[T], error) {
+func scoreByCategory[T ScoreContainerValue](container ScoreContainer[T], rating database.Rating, updateFunc func(T, database.Rating) T) (ScoreContainer[T], error) {
 	switch rating.Category {
 	case "Spelling":
-		container.Spelling = updateFunc(rating.Score)
+		container.Spelling = updateFunc(container.Spelling, rating)
 	case "Grammar":
-		container.Grammar = updateFunc(rating.Score)
+		container.Grammar = updateFunc(container.Grammar, rating)
 	case "GDPR":
-		container.Gdpr = updateFunc(rating.Score)
+		container.Gdpr = updateFunc(container.Gdpr, rating)
 	case "Randomness":
-		container.Randomness = updateFunc(rating.Score)
+		container.Randomness = updateFunc(container.Randomness, rating)
 	default:
 		log.Printf("unknown category: %s", rating.Category)
 		return container, fmt.Errorf("unknown category: %s", rating.Category)
 	}
 	return container, nil
+}
+
+func withinCalendarMonth(start, end time.Time) bool {
+	return start.Year() == end.Year() && start.Month() == end.Month()
+}
+
+func withinMinMonth(start, end time.Time) bool {
+	thirtyOneDaysAgo := end.AddDate(0, 0, -MIN_MONTH_LENGTH)
+	return start.After(thirtyOneDaysAgo)
+}
+
+func aggreagateWeeklyScores(container ScoreContainer[[]int32], weekNumber int32) *pb.Score {
+	return &pb.Score{
+		Type:  			pb.ScoreEnum_WEEKLY,
+		Value: 			fmt.Sprintf("Week %d", weekNumber),
+		Spelling:   calculateAverage(container.Spelling),
+		Grammar:    calculateAverage(container.Grammar),
+		Gdpr:       calculateAverage(container.Gdpr),
+		Randomness: calculateAverage(container.Randomness),
+	}
+}
+
+func includeRatingToReport(report []*pb.Score, score *pb.Score, container ScoreContainer[int32]) []*pb.Score {
+	if score == nil {
+		return report
+	}
+
+	score.Spelling = container.Spelling
+	score.Grammar = container.Grammar
+	score.Gdpr = container.Gdpr
+	score.Randomness = container.Randomness
+	report = append(report, score)
+
+	return report
 }
 
 func createEmptyContainer[T ScoreContainerValue]() (ScoreContainer[T], error) {
@@ -173,25 +248,13 @@ func createEmptyContainer[T ScoreContainerValue]() (ScoreContainer[T], error) {
 	}, nil
 }
 
-func withinCalendarMonth(start, end time.Time) bool {
-	return start.Year() == end.Year() && start.Month() == end.Month()
-}
-
-func withinMinMonth(start, end time.Time) bool {
-	thirtyOneDaysAgo := end.AddDate(0, 0, -MIN_MONTH_LENGTH)
-	return start.After(thirtyOneDaysAgo)
-}
-
-func includeRatingReport(report []*pb.Score, score *pb.Score, container ScoreContainer[int32]) []*pb.Score {
-	if score == nil {
-		return report
+func calculateAverage(nums []int32) int32 {
+	if len(nums) == 0 {
+		return 0
 	}
-
-	score.Spelling = container.Spelling
-	score.Grammar = container.Grammar
-	score.Gdpr = container.Gdpr
-	score.Randomness = container.Randomness
-	report = append(report, score)
-
-	return report
+	var sum int32
+	for _, n := range nums {
+		sum += n
+	}
+	return sum / int32(len(nums))
 }
