@@ -22,6 +22,7 @@ func Load() *Config {
 	return &Config{
 		Server: ServerConfig{
 			Port: getEnv("SERVER_PORT", "50051"),
+			Host: getEnv("SERVER_HOST", "0.0.0.0"),
 		},
 		Database: DatabaseConfig{
 			FilePath: getEnv("DB_FILE_PATH", "./database.db"),

@@ -6,16 +6,15 @@ import (
 
   "google.golang.org/grpc"
   "google.golang.org/grpc/reflection"
-  pb "helpdesk-ratings/proto/gen"
+
+  "helpdesk-ratings/internal/config"
   "helpdesk-ratings/internal/database"
   "helpdesk-ratings/internal/service"
+  pb "helpdesk-ratings/proto/gen"
 )
 
 func main() {
-  cfg, err := config.Load()
-  if err != nil {
-    log.Fatalf("Failed to load configuration: %v", err)
-  }
+  cfg := config.Load()
   
   log.Printf("Starting server with config: Port=%s, DB=%s", cfg.Server.Port, cfg.Database.FilePath)
 
@@ -27,7 +26,7 @@ func main() {
 
   ratingsService := service.NewRatingsService(repo)
 
-  lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.Port))
+  lis, err := net.Listen("tcp", ":" + cfg.Server.Port)
   if err != nil {
     log.Fatalf("Failed to listen: %v", err)
   }
