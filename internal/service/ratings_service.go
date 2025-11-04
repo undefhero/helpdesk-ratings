@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"time"
+	"fmt"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -77,13 +78,13 @@ func CalculateDailyReport(ratings []database.Rating) ([]*pb.Score, error) {
 				Value: rating.Day,
 			}
 
-			mapScoreCategory(rating, score)
+			scoreByCategory(score, rating, func(s int32) int32 { return s })
 		} else if score != nil && rating.Day == score.Value {
-			mapScoreCategory(rating, score)
+			scoreByCategory(score, rating, func(s int32) int32 { return s })
 		} else if score != nil && rating.Day != score.Value {
 			report = append(report, score)
 			score.Value = rating.Day
-			mapScoreCategory(rating, score)
+			scoreByCategory(score, rating, func(s int32) int32 { return s })
 		}
 	}
 
@@ -104,32 +105,25 @@ func CalculateRatingsReport(ratings []database.Rating) (*pb.Score, error) {
 	}
 
 	for _, rating := range ratings {
-		switch rating.Category {
-		case "Spelling":
-			score.Spelling = score.Spelling + rating.Total
-		case "Grammar":
-			score.Grammar = score.Grammar + rating.Total
-		case "GDPR":
-			score.Gdpr = score.Gdpr + rating.Total
-		case "Randomness":
-			score.Randomness = score.Randomness + rating.Total
-		}
+		scoreByCategory(score, rating, func (s int32) int32 { return s + rating.Score })
 	}
 	return score, nil
 }
 
-func mapScoreCategory(rating database.Rating, score *pb.Score) (*pb.Score, error) {
+func scoreByCategory(score *pb.Score, rating database.Rating, updateFunc func(int32) int32) (*pb.Score, error) {
 	switch rating.Category {
 	case "Spelling":
-		score.Spelling = rating.Score
+		score.Spelling = updateFunc(rating.Score)
 	case "Grammar":
-		score.Grammar = rating.Score
+		score.Grammar = updateFunc(rating.Score)
 	case "GDPR":
-		score.Gdpr = rating.Score
+		score.Gdpr = updateFunc(rating.Score)
 	case "Randomness":
-		score.Randomness = rating.Score
+		score.Randomness = updateFunc(rating.Score)
+	default:
+		log.Printf("unknown category: %s", rating.Category)
+		return nil, fmt.Errorf("unknown category: %s", rating.Category)
 	}
-
 	return score, nil
 }
 
