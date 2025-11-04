@@ -12,7 +12,14 @@ import (
 )
 
 func main() {
-  repo, err := database.NewRepository("./database.db")
+  cfg, err := config.Load()
+  if err != nil {
+    log.Fatalf("Failed to load configuration: %v", err)
+  }
+  
+  log.Printf("Starting server with config: Port=%s, DB=%s", cfg.Server.Port, cfg.Database.FilePath)
+
+  repo, err := database.NewRepository(cfg.Database.FilePath)
   if err != nil {
     log.Fatalf("Failed to connect: %v", err)
   }
@@ -20,7 +27,7 @@ func main() {
 
   ratingsService := service.NewRatingsService(repo)
 
-  lis, err := net.Listen("tcp", ":50051")
+  lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Server.Port))
   if err != nil {
     log.Fatalf("Failed to listen: %v", err)
   }
@@ -29,7 +36,7 @@ func main() {
   pb.RegisterServiceServer(s, ratingsService)
   reflection.Register(s)
 
-  log.Println("Server starting on :50051")
+  log.Printf("Server starting on :%d", cfg.Server.Port)
   if err := s.Serve(lis); err != nil {
     log.Fatalf("Failed to serve: %v", err)
   }
