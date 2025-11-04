@@ -17,10 +17,46 @@ type RatingsService struct {
 	repo *database.Repository
 }
 
+type ScoreContainerValue interface {
+	int32 | []int32
+}
+
+type ScoreContainer[T ScoreContainerValue] struct {
+	Spelling   T
+	Grammar    T
+	Gdpr       T
+	Randomness T
+}
+
 const MIN_MONTH_LENGTH = 28
 
 func NewRatingsService(repo *database.Repository) *RatingsService {
 	return &RatingsService{repo: repo}
+}
+
+func (s *RatingsService) GetOverallScore(ctx context.Context, req *pb.OverallScoreRequest) (*pb.OverallScoreResponse, error) {
+	startTime := req.StartDate.AsTime()
+	endTime := req.EndDate.AsTime()
+	log.Printf("Processing request: %v to %v", startTime, endTime)
+
+	if req.StartDate == nil || req.EndDate == nil {
+		log.Printf("Invalid date range: %v to %v", startTime, endTime)
+		return nil, status.Errorf(codes.InvalidArgument, "start_date and end_date are required")
+	}
+
+	if startTime.After(endTime) {
+		log.Printf("Invalid date range: %v to %v", startTime, endTime)
+		return nil, status.Errorf(codes.InvalidArgument, "start_date cannot be after end_date")
+	}
+
+	overallScore, err := s.repo.GetOverallScore(startTime.Format("2006-01-02T15:04:05"), endTime.Format("2006-01-02T15:04:05"))
+	if err != nil {
+		log.Fatalf("Failed to get overall score: %v", err)
+	}
+
+	return &pb.OverallScoreResponse{
+		OverallScore: overallScore,
+	}, nil
 }
 
 func (s *RatingsService) GetAggregatedScores(ctx context.Context, req *pb.AggregatedScoresRequest) (*pb.AggregatedScoresResponse, error) {
@@ -66,10 +102,10 @@ func (s *RatingsService) GetAggregatedScores(ctx context.Context, req *pb.Aggreg
 	}, nil
 }
 
-
 func CalculateDailyReport(ratings []database.Rating) ([]*pb.Score, error) {
 	var report []*pb.Score
 	var score *pb.Score
+	var container, _ = createEmptyContainer[int32]()
 
 	for _, rating := range ratings {
 		if score == nil {
@@ -78,53 +114,63 @@ func CalculateDailyReport(ratings []database.Rating) ([]*pb.Score, error) {
 				Value: rating.Day,
 			}
 
-			scoreByCategory(score, rating, func(s int32) int32 { return s })
+			container, _ = scoreByCategory(container, rating, func(s int32) int32 { return s })
 		} else if score != nil && rating.Day == score.Value {
-			scoreByCategory(score, rating, func(s int32) int32 { return s })
+			container, _ = scoreByCategory(container, rating, func(s int32) int32 { return s })
 		} else if score != nil && rating.Day != score.Value {
-			report = append(report, score)
+			report = includeRatingReport(report, score, container)
 			score.Value = rating.Day
-			scoreByCategory(score, rating, func(s int32) int32 { return s })
+			container, _ = createEmptyContainer[int32]()
+			container, _ = scoreByCategory(container, rating, func(s int32) int32 { return s })
 		}
 	}
 
 	if score != nil {
-		report = append(report, score)
+		report = includeRatingReport(report, score, container)
 	}
 
 	return report, nil
 }
 
 func CalculateRatingsReport(ratings []database.Rating) (*pb.Score, error) {
-	var score = &pb.Score{
-		Type:  pb.ScoreEnum_RATINGS,
-		Spelling:   0,
-		Grammar:    0,
-		Gdpr:       0,
-		Randomness: 0,
-	}
-
+	var container, _ = createEmptyContainer[int32]()
 	for _, rating := range ratings {
-		scoreByCategory(score, rating, func (s int32) int32 { return s + rating.Score })
+		container, _ = scoreByCategory(container, rating, func(s int32) int32 { return s + rating.Score })
 	}
-	return score, nil
+	return &pb.Score{
+		Type:  			pb.ScoreEnum_RATINGS,
+		Spelling:   container.Spelling,
+		Grammar:    container.Grammar,
+		Gdpr:       container.Gdpr,
+		Randomness: container.Randomness,
+	}, nil
 }
 
-func scoreByCategory(score *pb.Score, rating database.Rating, updateFunc func(int32) int32) (*pb.Score, error) {
+func scoreByCategory[T ScoreContainerValue](container ScoreContainer[T], rating database.Rating, updateFunc func(int32) T) (ScoreContainer[T], error) {
 	switch rating.Category {
 	case "Spelling":
-		score.Spelling = updateFunc(rating.Score)
+		container.Spelling = updateFunc(rating.Score)
 	case "Grammar":
-		score.Grammar = updateFunc(rating.Score)
+		container.Grammar = updateFunc(rating.Score)
 	case "GDPR":
-		score.Gdpr = updateFunc(rating.Score)
+		container.Gdpr = updateFunc(rating.Score)
 	case "Randomness":
-		score.Randomness = updateFunc(rating.Score)
+		container.Randomness = updateFunc(rating.Score)
 	default:
 		log.Printf("unknown category: %s", rating.Category)
-		return nil, fmt.Errorf("unknown category: %s", rating.Category)
+		return container, fmt.Errorf("unknown category: %s", rating.Category)
 	}
-	return score, nil
+	return container, nil
+}
+
+func createEmptyContainer[T ScoreContainerValue]() (ScoreContainer[T], error) {
+	var zero T
+	return ScoreContainer[T]{
+		Spelling:   zero,
+		Grammar:    zero,
+		Gdpr:       zero,
+		Randomness: zero,
+	}, nil
 }
 
 func withinCalendarMonth(start, end time.Time) bool {
@@ -134,4 +180,18 @@ func withinCalendarMonth(start, end time.Time) bool {
 func withinMinMonth(start, end time.Time) bool {
 	thirtyOneDaysAgo := end.AddDate(0, 0, -MIN_MONTH_LENGTH)
 	return start.After(thirtyOneDaysAgo)
+}
+
+func includeRatingReport(report []*pb.Score, score *pb.Score, container ScoreContainer[int32]) []*pb.Score {
+	if score == nil {
+		return report
+	}
+
+	score.Spelling = container.Spelling
+	score.Grammar = container.Grammar
+	score.Gdpr = container.Gdpr
+	score.Randomness = container.Randomness
+	report = append(report, score)
+
+	return report
 }

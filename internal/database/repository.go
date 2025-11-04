@@ -21,6 +21,20 @@ func (r *Repository) Close() error {
 	return r.db.Close()
 }
 
+func (r *Repository) GetOverallScore(startDate, endDate string) (float32, error) {
+	query := `
+		SELECT COALESCE(100.0 * SUM((r.rating / 5.0) * rc.weight) / SUM(rc.weight), 0) AS overall_score
+        FROM ratings r
+        JOIN rating_categories rc ON rc.id = r.rating_category_id
+        WHERE r.created_at BETWEEN ? AND ?`
+	var overallScore float32
+	err := r.db.QueryRow(query, startDate, endDate).Scan(&overallScore)
+	if err != nil {
+		return 0, err
+	}
+	return overallScore, nil
+}
+
 func (r *Repository) GetWeightedRatings(startDate, endDate string) ([]Rating, error) {
 	query := `
 		SELECT DATE(r.created_at) AS day, rc.name as category, 

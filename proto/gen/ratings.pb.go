@@ -126,6 +126,102 @@ func (x *AggregatedScoresRequest) GetEndDate() *timestamppb.Timestamp {
 	return nil
 }
 
+type OverallScoreRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StartDate     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
+	EndDate       *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OverallScoreRequest) Reset() {
+	*x = OverallScoreRequest{}
+	mi := &file_proto_ratings_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OverallScoreRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OverallScoreRequest) ProtoMessage() {}
+
+func (x *OverallScoreRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_ratings_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OverallScoreRequest.ProtoReflect.Descriptor instead.
+func (*OverallScoreRequest) Descriptor() ([]byte, []int) {
+	return file_proto_ratings_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *OverallScoreRequest) GetStartDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartDate
+	}
+	return nil
+}
+
+func (x *OverallScoreRequest) GetEndDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndDate
+	}
+	return nil
+}
+
+type OverallScoreResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OverallScore  float32                `protobuf:"fixed32,1,opt,name=overall_score,json=overallScore,proto3" json:"overall_score,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OverallScoreResponse) Reset() {
+	*x = OverallScoreResponse{}
+	mi := &file_proto_ratings_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OverallScoreResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OverallScoreResponse) ProtoMessage() {}
+
+func (x *OverallScoreResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_ratings_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OverallScoreResponse.ProtoReflect.Descriptor instead.
+func (*OverallScoreResponse) Descriptor() ([]byte, []int) {
+	return file_proto_ratings_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *OverallScoreResponse) GetOverallScore() float32 {
+	if x != nil {
+		return x.OverallScore
+	}
+	return 0
+}
+
 type AggregatedScoresResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Scores        []*Score               `protobuf:"bytes,1,rep,name=scores,proto3" json:"scores,omitempty"`
@@ -135,7 +231,7 @@ type AggregatedScoresResponse struct {
 
 func (x *AggregatedScoresResponse) Reset() {
 	*x = AggregatedScoresResponse{}
-	mi := &file_proto_ratings_proto_msgTypes[1]
+	mi := &file_proto_ratings_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -147,7 +243,7 @@ func (x *AggregatedScoresResponse) String() string {
 func (*AggregatedScoresResponse) ProtoMessage() {}
 
 func (x *AggregatedScoresResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_ratings_proto_msgTypes[1]
+	mi := &file_proto_ratings_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -160,7 +256,7 @@ func (x *AggregatedScoresResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AggregatedScoresResponse.ProtoReflect.Descriptor instead.
 func (*AggregatedScoresResponse) Descriptor() ([]byte, []int) {
-	return file_proto_ratings_proto_rawDescGZIP(), []int{1}
+	return file_proto_ratings_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AggregatedScoresResponse) GetScores() []*Score {
@@ -184,7 +280,7 @@ type Score struct {
 
 func (x *Score) Reset() {
 	*x = Score{}
-	mi := &file_proto_ratings_proto_msgTypes[2]
+	mi := &file_proto_ratings_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -196,7 +292,7 @@ func (x *Score) String() string {
 func (*Score) ProtoMessage() {}
 
 func (x *Score) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_ratings_proto_msgTypes[2]
+	mi := &file_proto_ratings_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -209,7 +305,7 @@ func (x *Score) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Score.ProtoReflect.Descriptor instead.
 func (*Score) Descriptor() ([]byte, []int) {
-	return file_proto_ratings_proto_rawDescGZIP(), []int{2}
+	return file_proto_ratings_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Score) GetType() ScoreEnum {
@@ -262,7 +358,13 @@ const file_proto_ratings_proto_rawDesc = "" +
 	"\x17AggregatedScoresRequest\x129\n" +
 	"\n" +
 	"start_date\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tstartDate\x125\n" +
-	"\bend_date\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\aendDate\"B\n" +
+	"\bend_date\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\aendDate\"\x87\x01\n" +
+	"\x13OverallScoreRequest\x129\n" +
+	"\n" +
+	"start_date\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tstartDate\x125\n" +
+	"\bend_date\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\aendDate\";\n" +
+	"\x14OverallScoreResponse\x12#\n" +
+	"\roverall_score\x18\x01 \x01(\x02R\foverallScore\"B\n" +
 	"\x18AggregatedScoresResponse\x12&\n" +
 	"\x06scores\x18\x01 \x03(\v2\x0e.ratings.ScoreR\x06scores\"\xaf\x01\n" +
 	"\x05Score\x12&\n" +
@@ -279,9 +381,10 @@ const file_proto_ratings_proto_rawDesc = "" +
 	"\x05DAILY\x10\x01\x12\n" +
 	"\n" +
 	"\x06WEEKLY\x10\x02\x12\v\n" +
-	"\aRATINGS\x10\x032e\n" +
+	"\aRATINGS\x10\x032\xb5\x01\n" +
 	"\aService\x12Z\n" +
-	"\x13GetAggregatedScores\x12 .ratings.AggregatedScoresRequest\x1a!.ratings.AggregatedScoresResponseB\vZ\tproto/genb\x06proto3"
+	"\x13GetAggregatedScores\x12 .ratings.AggregatedScoresRequest\x1a!.ratings.AggregatedScoresResponse\x12N\n" +
+	"\x0fGetOverallScore\x12\x1c.ratings.OverallScoreRequest\x1a\x1d.ratings.OverallScoreResponseB\vZ\tproto/genb\x06proto3"
 
 var (
 	file_proto_ratings_proto_rawDescOnce sync.Once
@@ -296,26 +399,32 @@ func file_proto_ratings_proto_rawDescGZIP() []byte {
 }
 
 var file_proto_ratings_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_ratings_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_proto_ratings_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_proto_ratings_proto_goTypes = []any{
 	(ScoreEnum)(0),                   // 0: ratings.ScoreEnum
 	(*AggregatedScoresRequest)(nil),  // 1: ratings.AggregatedScoresRequest
-	(*AggregatedScoresResponse)(nil), // 2: ratings.AggregatedScoresResponse
-	(*Score)(nil),                    // 3: ratings.Score
-	(*timestamppb.Timestamp)(nil),    // 4: google.protobuf.Timestamp
+	(*OverallScoreRequest)(nil),      // 2: ratings.OverallScoreRequest
+	(*OverallScoreResponse)(nil),     // 3: ratings.OverallScoreResponse
+	(*AggregatedScoresResponse)(nil), // 4: ratings.AggregatedScoresResponse
+	(*Score)(nil),                    // 5: ratings.Score
+	(*timestamppb.Timestamp)(nil),    // 6: google.protobuf.Timestamp
 }
 var file_proto_ratings_proto_depIdxs = []int32{
-	4, // 0: ratings.AggregatedScoresRequest.start_date:type_name -> google.protobuf.Timestamp
-	4, // 1: ratings.AggregatedScoresRequest.end_date:type_name -> google.protobuf.Timestamp
-	3, // 2: ratings.AggregatedScoresResponse.scores:type_name -> ratings.Score
-	0, // 3: ratings.Score.type:type_name -> ratings.ScoreEnum
-	1, // 4: ratings.Service.GetAggregatedScores:input_type -> ratings.AggregatedScoresRequest
-	2, // 5: ratings.Service.GetAggregatedScores:output_type -> ratings.AggregatedScoresResponse
-	5, // [5:6] is the sub-list for method output_type
-	4, // [4:5] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	6, // 0: ratings.AggregatedScoresRequest.start_date:type_name -> google.protobuf.Timestamp
+	6, // 1: ratings.AggregatedScoresRequest.end_date:type_name -> google.protobuf.Timestamp
+	6, // 2: ratings.OverallScoreRequest.start_date:type_name -> google.protobuf.Timestamp
+	6, // 3: ratings.OverallScoreRequest.end_date:type_name -> google.protobuf.Timestamp
+	5, // 4: ratings.AggregatedScoresResponse.scores:type_name -> ratings.Score
+	0, // 5: ratings.Score.type:type_name -> ratings.ScoreEnum
+	1, // 6: ratings.Service.GetAggregatedScores:input_type -> ratings.AggregatedScoresRequest
+	2, // 7: ratings.Service.GetOverallScore:input_type -> ratings.OverallScoreRequest
+	4, // 8: ratings.Service.GetAggregatedScores:output_type -> ratings.AggregatedScoresResponse
+	3, // 9: ratings.Service.GetOverallScore:output_type -> ratings.OverallScoreResponse
+	8, // [8:10] is the sub-list for method output_type
+	6, // [6:8] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_proto_ratings_proto_init() }
@@ -329,7 +438,7 @@ func file_proto_ratings_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_ratings_proto_rawDesc), len(file_proto_ratings_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
