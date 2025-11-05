@@ -47,7 +47,12 @@ You need to use the algorithm in both of the endpoints in the second task.
 ### Deployment and launcing
 The [./kubernetes/](./kubernetes/deployment.yaml) folder containis an example of how the service could be deployed to Kubernetes. 
 
-**Important**: The database file is not included into Docker image. The `database.db` file has to be mounted to the container at runtime.
+**Important**: The database file is not included (by default) into Docker image. The `database.db` file has to be mounted to the container at runtime.
+The list of available images at DockerHub: [aiprospace/helpdesk-ratings](https://hub.docker.com/r/aiprospace/helpdesk-ratings/tags)
+
+Versions v0.3.1 and v0.3.1-db (with the database included) are final:
+* [v0.3.1](https://hub.docker.com/layers/aiprospace/helpdesk-ratings/v0.3.1/images/sha256-acf3d51154c2f48b60d15858b6ce8ed7a0deb2d3915b480136ce6809fcf9cc29)
+* [v0.3.1-db](https://hub.docker.com/layers/aiprospace/helpdesk-ratings/v0.3.1-db/images/sha256-260053a90a6e7ac9db3929abc1d72f2a5040f327a5857999374eca26617d10e8)
 
 The service accepts environment variables:
 |Variable    |Default Value.  |Description              |
@@ -66,7 +71,6 @@ Or with remote image:
 ```bash
 docker compose --profile remote up
 ```
-The list of available images at DockerHub: [aiprospace/helpdesk-ratings](https://hub.docker.com/r/aiprospace/helpdesk-ratings/tags)
 
 ### Implementation
 The main logic and tests are on the [internal/service/](internal/service/) folder.
