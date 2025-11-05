@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: helpdesk-ratings
-        image: aiprospace/helpdesk-ratings:v0.2.0
+        image: aiprospace/helpdesk-ratings:v0.3.0
         imagePullPolicy: Always
         ports:
         - containerPort: 50051
