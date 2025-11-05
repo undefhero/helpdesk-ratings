@@ -21,7 +21,7 @@ services:
 
   helpdesk-ratings:
     image:
-      aiprospace/helpdesk-ratings:v0.3.0
+      aiprospace/helpdesk-ratings:v0.3.1
     profiles:
       - remote
     ports:
