@@ -1,8 +1,7 @@
 name: Publish Image
 
 on:
-  release:
-    types: [published]
+  push
 
 jobs:
   publish-dockerhub:
@@ -27,7 +26,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            aiprospace/helpdesk-ratings:${{ github.event.release.tag_name }}
-            aiprospace/helpdesk-ratings:latest
+            aiprospace/helpdesk-ratings:v0.3.1-db
           cache-from: type=gha
           cache-to: type=gha,mode=max
