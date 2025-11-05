@@ -17,12 +17,11 @@ type RatingsService struct {
 }
 
 const (
-    MIN_MONTH_LENGTH = 28
-    DATE_FORMAT      = "2006-01-02T15:04:05"
-    SPELLING         = "Spelling"
-    GRAMMAR          = "Grammar"
-    GDPR             = "GDPR"
-    RANDOMNESS       = "Randomness"
+    DATE_FORMAT = "2006-01-02T15:04:05"
+    SPELLING    = "Spelling"
+    GRAMMAR     = "Grammar"
+    GDPR        = "GDPR"
+    RANDOMNESS  = "Randomness"
 )
 
 func NewRatingsService(repo *database.Repository) *RatingsService {
@@ -32,7 +31,7 @@ func NewRatingsService(repo *database.Repository) *RatingsService {
 func (s *RatingsService) GetOverallScore(ctx context.Context, req *pb.OverallScoreRequest) (*pb.OverallScoreResponse, error) {
 	startTime := req.StartDate.AsTime()
 	endTime := req.EndDate.AsTime()
-	log.Printf("Processing request: %v to %v", startTime, endTime)
+	log.Printf("Processing GetOverallScore request: %v to %v", startTime, endTime)
 
 	if req.StartDate == nil || req.EndDate == nil || startTime.After(endTime) {
 		log.Printf("Invalid date range: %v to %v", startTime, endTime)
@@ -53,7 +52,7 @@ func (s *RatingsService) GetOverallScore(ctx context.Context, req *pb.OverallSco
 func (s *RatingsService) GetAggregatedScores(ctx context.Context, req *pb.AggregatedScoresRequest) (*pb.AggregatedScoresResponse, error) {
 	startTime := req.StartDate.AsTime()
 	endTime := req.EndDate.AsTime()
-	log.Printf("Processing request: %v to %v", startTime, endTime)
+	log.Printf("Processing GetAggregatedScores request: %v to %v", startTime, endTime)
 
 	if req.StartDate == nil || req.EndDate == nil || startTime.After(endTime) {
 		log.Printf("Invalid date range: %v to %v", startTime, endTime)

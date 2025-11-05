@@ -21,6 +21,9 @@ type ScoreContainer[T ScoreContainerValue] struct {
 	Randomness T
 }
 
+const MIN_MONTH_LENGTH = 28
+
+
 func createEmptyContainer[T ScoreContainerValue]() ScoreContainer[T] {
 	var zero T
 	return ScoreContainer[T]{

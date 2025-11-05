@@ -45,7 +45,8 @@ You need to use the algorithm in both of the endpoints in the second task.
 ## Solution
 
 ### Deployment and launcing
-The [./kubernetes/](./kubernetes/) folder containis an example of how the service could be deployed to Kubernetes. 
+The [./kubernetes/](./kubernetes/deployment.yaml) folder containis an example of how the service could be deployed to Kubernetes. 
+
 **Important**: The database file is not included into Docker image. The `database.db` file has to be mounted to the container at runtime.
 
 The service accepts environment variables:
@@ -68,7 +69,7 @@ docker compose --profile remote up
 The list of available images at DockerHub: [aiprospace/helpdesk-ratings](https://hub.docker.com/r/aiprospace/helpdesk-ratings/tags)
 
 ### Implementation
-The main logic and integration tests are on the [internal/service/ratings_service.go](internal/service/ratings_service.go), [internal/database/repository.go](internal/database/repository.go)
+The main logic and tests are on the [internal/service/](internal/service/) folder.
 
 I also included test scenarios that I used during development.
 
@@ -90,7 +91,6 @@ grpcurl -plaintext -d '{
   "end_date": "2025-01-07T23:59:59Z"
 }' localhost:50051 ratings.Service/GetAggregatedScores
 ```
-
 
 * One day
 ```bash
@@ -137,7 +137,7 @@ grpcurl -plaintext -d '{
 ```bash
 grpcurl -plaintext -d '{
   "start_date": "2025-01-06T00:00:00Z",
-  "end_date": "2025-02-02T23:59:59Z"
+  "end_date": "2025-02-03T23:59:59Z"
 }' localhost:50051 ratings.Service/GetAggregatedScores
 ```
 
