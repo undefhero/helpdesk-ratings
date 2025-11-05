@@ -1,8 +1,8 @@
 package service
 
 import (
-	"context"
 	"testing"
+	"context"
 	"time"
 	"helpdesk-ratings/internal/database"
 	pb "helpdesk-ratings/proto/gen"
@@ -66,6 +66,10 @@ func TestGetAggregatedScoresDaily(t *testing.T) {
 	if response != nil && len(response.Scores) != 29 {
 		t.Fatal("Expected 29 scores")
 	}
+
+	if response.Scores[0].Value == response.Scores[1].Value {
+		t.Fatalf("Expected different scores for different days, got same score")
+	}
 }
 
 func TestGetAggregatedScoresWeekly(t *testing.T) {
@@ -94,5 +98,19 @@ func TestGetAggregatedScoresWeekly(t *testing.T) {
 
 	if len(response.Scores) == 1 {
 		t.Fatal("Only ratings report returned")
+	}
+}
+
+func TestCalculateWeightedScore(t *testing.T) {
+	scores := []ScoreType{
+    {Value: 4, Weight: 0.7},
+    {Value: 5, Weight: 0.3},
+	}
+
+	expected := int32(86)
+	result := calculateWeightedScore(scores)
+
+	if result != expected {
+		t.Fatalf("Expected %v, got %v", expected, result)
 	}
 }

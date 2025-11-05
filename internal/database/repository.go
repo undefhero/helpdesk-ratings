@@ -12,8 +12,8 @@ type Repository struct {
 type Rating struct {
     Day        string  `json:"day"`
     Category   string  `json:"category"`
-    Score      int32   `json:"daily_score"`
-    Total      int32   `json:"total"`
+		Value      int32   `json:"value"`
+    Weight     float64 `json:"weight"`
 }
 
 func NewRepository(dataSourceName string) (*Repository, error) {
@@ -44,12 +44,10 @@ func (r *Repository) GetOverallScore(startDate, endDate string) (float32, error)
 
 func (r *Repository) GetWeightedRatings(startDate, endDate string) ([]Rating, error) {
 	query := `
-		SELECT DATE(r.created_at) AS day, rc.name as category, 
-			COALESCE(100.0 * SUM((r.rating / 5.0) * rc.weight) / SUM(rc.weight), 0) AS daily_score, COUNT(r.id) as total
+		SELECT DATE(r.created_at) AS day, rc.name as category, r.rating as value, rc.weight as weight
 		FROM ratings r
 		JOIN rating_categories rc ON rc.id = r.rating_category_id
 			WHERE r.created_at BETWEEN ? AND ?
-			GROUP BY day, r.rating_category_id 
 			ORDER BY day, r.rating_category_id`
 
 	rows, err := r.db.Query(query, startDate, endDate)
@@ -61,10 +59,10 @@ func (r *Repository) GetWeightedRatings(startDate, endDate string) ([]Rating, er
 	var ratings []Rating
 	for rows.Next() {
 		var day, category string
-		var score float64
-		var total int32
+		var weight float64
+		var value int32
 
-		err := rows.Scan(&day, &category, &score, &total)
+		err := rows.Scan(&day, &category, &value, &weight)
 		if err != nil {
 			return nil, err
 		}
@@ -72,8 +70,8 @@ func (r *Repository) GetWeightedRatings(startDate, endDate string) ([]Rating, er
 		ratings = append(ratings, Rating{
 			Day:      day,
 			Category: category,
-			Score:    int32(score),
-			Total:    total,
+			Value:    value,
+			Weight:   weight,
 		})
 	}
 	

@@ -83,6 +83,15 @@ grpcurl -plaintext -d '{
 }' localhost:50051 ratings.Service/GetAggregatedScores
 ```
 
+* One week
+```bash
+grpcurl -plaintext -d '{
+  "start_date": "2025-01-01T00:00:00Z",
+  "end_date": "2025-01-07T23:59:59Z"
+}' localhost:50051 ratings.Service/GetAggregatedScores
+```
+
+
 * One day
 ```bash
 grpcurl -plaintext -d '{
@@ -105,6 +114,14 @@ grpcurl -plaintext -d '{
   "start_date": "2025-01-01T00:00:00Z",
   "end_date": "2025-12-31T23:59:59Z"
 }' localhost:50051 ratings.Service/GetAggregatedScores
+```
+
+* GetOverallScore a year
+```bash
+grpcurl -plaintext -d '{
+  "start_date": "2025-01-01T00:00:00Z",
+  "end_date": "2025-01-31T23:59:59Z"
+}' localhost:50051 ratings.Service/GetOverallScore
 ```
 
 #### Edge cases
@@ -143,4 +160,8 @@ grpcurl -plaintext -d '{
 * Empty
 ```bash
 grpcurl -plaintext -d '{}' localhost:50051 ratings.Service/GetAggregatedScores
+```
+
+```bash
+grpcurl -plaintext -d '{}' localhost:50051 ratings.Service/GetOverallScore
 ```

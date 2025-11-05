@@ -2,10 +2,16 @@ package service
 
 import (
 	"time"
+	"math"
 )
 
+type ScoreType struct {
+	Value  int32
+	Weight float64
+}
+
 type ScoreContainerValue interface {
-	int32 | []int32
+	int32 | []ScoreType
 }
 
 type ScoreContainer[T ScoreContainerValue] struct {
@@ -43,4 +49,17 @@ func calculateAverage(nums []int32) int32 {
 		sum += n
 	}
 	return sum / int32(len(nums))
+}
+
+func calculateWeightedScore(scores []ScoreType) int32 {
+	var weightSum, valueSum float64
+	for _, score := range scores {
+		weightSum += score.Weight
+		valueSum += (float64(score.Value) / 5.0) * score.Weight
+	}
+	if valueSum == 0 || weightSum == 0 {
+		return 0
+	}
+
+	return int32(math.Round(100 * (valueSum / weightSum)))
 }
