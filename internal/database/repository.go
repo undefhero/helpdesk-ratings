@@ -10,10 +10,10 @@ type Repository struct {
 }
 
 type Rating struct {
-    Day        string  `json:"day"`
-    Category   string  `json:"category"`
-		Value      int32   `json:"value"`
-    Weight     float64 `json:"weight"`
+	Day      string  `json:"day"`
+	Category string  `json:"category"`
+	Value    int32   `json:"value"`
+	Weight   float64 `json:"weight"`
 }
 
 func NewRepository(dataSourceName string) (*Repository, error) {
@@ -52,7 +52,7 @@ func (r *Repository) GetWeightedRatings(startDate, endDate string) ([]Rating, er
 
 	rows, err := r.db.Query(query, startDate, endDate)
 	if err != nil {
-			return nil, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -74,6 +74,6 @@ func (r *Repository) GetWeightedRatings(startDate, endDate string) ([]Rating, er
 			Weight:   weight,
 		})
 	}
-	
+
 	return ratings, rows.Err()
 }

@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"log"
 	"fmt"
+	"log"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -17,11 +17,11 @@ type RatingsService struct {
 }
 
 const (
-    DATE_FORMAT = "2006-01-02T15:04:05"
-    SPELLING    = "Spelling"
-    GRAMMAR     = "Grammar"
-    GDPR        = "GDPR"
-    RANDOMNESS  = "Randomness"
+	DATE_FORMAT = "2006-01-02T15:04:05"
+	SPELLING    = "Spelling"
+	GRAMMAR     = "Grammar"
+	GDPR        = "GDPR"
+	RANDOMNESS  = "Randomness"
 )
 
 func NewRatingsService(repo *database.Repository) *RatingsService {
@@ -108,7 +108,9 @@ func CalculateDailyReport(ratings []database.Rating) ([]*pb.Score, error) {
 	for _, rating := range ratings {
 		var err error
 		if rating.Day == score.Value {
-			container, err = scoreByCategory[[]ScoreType](container, rating, func(s []ScoreType, r database.Rating) []ScoreType { return append(s, ScoreType{Value: r.Value, Weight: r.Weight}) })
+			container, err = scoreByCategory[[]ScoreType](container, rating, func(s []ScoreType, r database.Rating) []ScoreType {
+				return append(s, ScoreType{Value: r.Value, Weight: r.Weight})
+			})
 			if err != nil {
 				return nil, fmt.Errorf("failed to score rating: %w", err)
 			}
@@ -118,7 +120,9 @@ func CalculateDailyReport(ratings []database.Rating) ([]*pb.Score, error) {
 			score.Value = rating.Day
 			container = createEmptyContainer[[]ScoreType]()
 
-			container, err = scoreByCategory[[]ScoreType](container, rating, func(s []ScoreType, r database.Rating) []ScoreType { return append(s, ScoreType{Value: r.Value, Weight: r.Weight}) })
+			container, err = scoreByCategory[[]ScoreType](container, rating, func(s []ScoreType, r database.Rating) []ScoreType {
+				return append(s, ScoreType{Value: r.Value, Weight: r.Weight})
+			})
 			if err != nil {
 				return nil, fmt.Errorf("failed to score rating: %w", err)
 			}
@@ -134,7 +138,7 @@ func CalculateWeeklyReport(ratings []database.Rating) ([]*pb.Score, error) {
 	if len(ratings) == 0 {
 		return []*pb.Score{}, nil
 	}
-	
+
 	var report []*pb.Score
 	currentDay := ratings[0].Day
 	dayCounter, weekNumber := int32(1), int32(1)
@@ -147,9 +151,11 @@ func CalculateWeeklyReport(ratings []database.Rating) ([]*pb.Score, error) {
 
 	for _, rating := range ratings {
 		var err error
-		container, err = scoreByCategory[[]ScoreType](container, rating, func(v []ScoreType, r database.Rating) []ScoreType { return append(v, ScoreType{Value: r.Value, Weight: r.Weight}) })
+		container, err = scoreByCategory[[]ScoreType](container, rating, func(v []ScoreType, r database.Rating) []ScoreType {
+			return append(v, ScoreType{Value: r.Value, Weight: r.Weight})
+		})
 		if err != nil {
-			return nil, fmt.Errorf( "failed to score rating: %w", err)
+			return nil, fmt.Errorf("failed to score rating: %w", err)
 		}
 
 		if rating.Day != currentDay {
@@ -180,18 +186,18 @@ func preparePeriodReport(report []*pb.Score, score *pb.Score, container ScoreCon
 	}
 
 	return append(report, &pb.Score{
-		Type: score.Type,
-		Value: score.Value,
-		Spelling: calculateWeightedScore(container.Spelling),	
-		Grammar: calculateWeightedScore(container.Grammar),
-		Gdpr: calculateWeightedScore(container.Gdpr),
-		Randomness: calculateWeightedScore(container.Randomness),
-	}), ScoreContainer[int32]{
-		Spelling: totalContainer.Spelling + int32(len(container.Spelling)),
-		Grammar: totalContainer.Grammar + int32(len(container.Grammar)),
-		Gdpr: totalContainer.Gdpr + int32(len(container.Gdpr)),
-		Randomness: totalContainer.Randomness + int32(len(container.Randomness)),
-	}
+			Type:       score.Type,
+			Value:      score.Value,
+			Spelling:   calculateWeightedScore(container.Spelling),
+			Grammar:    calculateWeightedScore(container.Grammar),
+			Gdpr:       calculateWeightedScore(container.Gdpr),
+			Randomness: calculateWeightedScore(container.Randomness),
+		}), ScoreContainer[int32]{
+			Spelling:   totalContainer.Spelling + int32(len(container.Spelling)),
+			Grammar:    totalContainer.Grammar + int32(len(container.Grammar)),
+			Gdpr:       totalContainer.Gdpr + int32(len(container.Gdpr)),
+			Randomness: totalContainer.Randomness + int32(len(container.Randomness)),
+		}
 }
 
 func scoreByCategory[T ScoreContainerValue](container ScoreContainer[T], rating database.Rating, updateFunc func(T, database.Rating) T) (ScoreContainer[T], error) {
@@ -215,10 +221,10 @@ func prepareTotalReport(container ScoreContainer[int32]) []*pb.Score {
 	var total []*pb.Score
 
 	return append(total, &pb.Score{
-		Type:   pb.ScoreEnum_RATINGS,
-		Spelling: container.Spelling,
-		Grammar: container.Grammar,
-		Gdpr: container.Gdpr,
+		Type:       pb.ScoreEnum_RATINGS,
+		Spelling:   container.Spelling,
+		Grammar:    container.Grammar,
+		Gdpr:       container.Gdpr,
 		Randomness: container.Randomness,
 	})
 }

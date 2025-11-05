@@ -1,8 +1,8 @@
 package service
 
 import (
-	"time"
 	"math"
+	"time"
 )
 
 type ScoreType struct {
@@ -22,7 +22,6 @@ type ScoreContainer[T ScoreContainerValue] struct {
 }
 
 const MIN_MONTH_LENGTH = 28
-
 
 func createEmptyContainer[T ScoreContainerValue]() ScoreContainer[T] {
 	var zero T

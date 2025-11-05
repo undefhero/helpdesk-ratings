@@ -1,12 +1,12 @@
 package service
 
 import (
-	"testing"
 	"context"
-	"time"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"helpdesk-ratings/internal/database"
 	pb "helpdesk-ratings/proto/gen"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"testing"
+	"time"
 )
 
 func TestGetOverallScore(t *testing.T) {
@@ -15,7 +15,7 @@ func TestGetOverallScore(t *testing.T) {
 		t.Fatalf("Failed to create repository: %v", err)
 	}
 	defer repo.Close()
-	
+
 	ratingsService := NewRatingsService(repo)
 	req := &pb.OverallScoreRequest{
 		StartDate: timestamppb.New(time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)),
@@ -103,8 +103,8 @@ func TestGetAggregatedScoresWeekly(t *testing.T) {
 
 func TestCalculateWeightedScore(t *testing.T) {
 	scores := []ScoreType{
-    {Value: 4, Weight: 0.7},
-    {Value: 5, Weight: 0.3},
+		{Value: 4, Weight: 0.7},
+		{Value: 5, Weight: 0.3},
 	}
 
 	expected := int32(86)
